@@ -34,9 +34,13 @@
 	let openCards: any[] = [];
 
 	function startGame() {
-		cards.forEach((card) => (card.open = false));
+		openCards = [];
+		cards.forEach((card) => {
+			card.open = false;
+			card.solved = false;
+		});
 		cards = cards;
-		setTimeout(() => (cards = initCards()), 500);
+		setTimeout(() => (cards = initCards()), 300);
 	}
 
 	let timeoutId;
