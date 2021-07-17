@@ -79,26 +79,54 @@
 	}
 </script>
 
-<h1>
-	MEMORII
-	<button on:click={startGame}>START</button>
-	<select bind:value={selectedIconSet}>
-		{#each iconSets as iconSet}
-			<option value={iconSet}>{iconSet}</option>
-		{/each}
-	</select>
-</h1>
 <main>
-	{#each cards as card}
-		<Card {card} on:flip={() => flipCard(card)} />
-	{/each}
+	<header>
+		<h1>MEMORII</h1>
+		<button on:click={startGame}>START</button>
+		<select bind:value={selectedIconSet}>
+			{#each iconSets as iconSet}
+				<option value={iconSet}>{iconSet}</option>
+			{/each}
+		</select>
+	</header>
+
+	<div style="--columns: 4; --rows: 4">
+		{#each cards as card}
+			<Card {card} on:flip={() => flipCard(card)} />
+		{/each}
+	</div>
 </main>
 
 <style>
+	h1 {
+		margin: 0;
+	}
+
 	main {
+		position: relative;
+		height: calc(100vh);
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		overflow: hidden;
+	}
+
+	div {
+		width: 100%;
+		height: 100%;
+		max-height: calc(100vw * 1.333);
+		max-width: calc(100vh);
 		display: grid;
-		gap: 10px;
-		grid-template-columns: repeat(4, 1fr);
-		font-size: calc(100vw / 4 * 0.7);
+		padding: 2vmin;
+		gap: 2vmin;
+		grid-template-columns: repeat(var(--columns), 1fr);
+		grid-template-rows: repeat(var(--rows), 1fr);
+		font-size: calc(100vmin / var(--columns) * 0.65);
+	}
+
+	@media (orientation: portrait) {
+		main {
+			flex-direction: column;
+		}
 	}
 </style>
