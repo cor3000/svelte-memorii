@@ -11,21 +11,26 @@
 		}
 	}
 
-	let allCards: any[] = [
-		{ id: 0, color: "lightblue", icon: "1" },
-		{ id: 1, color: "lime", icon: "2" },
-		{ id: 2, color: "red", icon: "3" },
-		{ id: 3, color: "purple", icon: "4" },
-		{ id: 4, color: "orange", icon: "5" },
-		{ id: 5, color: "hotpink", icon: "6" },
+	const iconSets: string[] = ["animal", "number"];
+	let selectedIconSet: string = iconSets[0];
+
+	const allCards: any[] = [
+		{ id: 0, color: "lightblue", number: "1", animal: "\\1f989" },
+		{ id: 1, color: "greenyellow", number: "2", animal: "\\1f420" },
+		{ id: 2, color: "red", number: "3", animal: "\\1f422" },
+		{ id: 3, color: "purple", number: "4", animal: "\\1f40c" },
+		{ id: 4, color: "orange", number: "5", animal: "\\1f98b" },
+		{ id: 5, color: "hotpink", number: "6", animal: "\\1f41d" },
+		{ id: 6, color: "forestgreen", number: "7", animal: "\\1f41e" },
+		{ id: 7, color: "royalblue", number: "8", animal: "\\1f986" },
 	];
 
-	const copy = (o) => {
-		return { ...o };
+	const initCard = (card) => {
+		return { ...card, icon: card[selectedIconSet] };
 	};
 
 	function initCards() {
-		var cards = [...allCards.map(copy), ...allCards.map(copy)];
+		var cards = [...allCards.map(initCard), ...allCards.map(initCard)];
 		shuffleArray(cards);
 		return cards;
 	}
@@ -48,8 +53,8 @@
 	async function flipCard(card) {
 		clearTimeout(timeoutId);
 		if (card.open || card.solved || openCards.length >= 2) {
-			return;
 			cards = cards;
+			return;
 		}
 		card.open = !card.open;
 		openCards.push(card);
@@ -68,13 +73,21 @@
 				toUnflip[1].open = false;
 				timeoutId = setTimeout(() => {
 					cards = cards;
-				}, 3000);
+				}, 2000);
 			}
 		}
 	}
 </script>
 
-<h1>Memory <button on:click={startGame}>START</button></h1>
+<h1>
+	MEMORII
+	<button on:click={startGame}>START</button>
+	<select bind:value={selectedIconSet}>
+		{#each iconSets as iconSet}
+			<option value={iconSet}>{iconSet}</option>
+		{/each}
+	</select>
+</h1>
 <main>
 	{#each cards as card}
 		<Card {card} on:flip={() => flipCard(card)} />
@@ -85,7 +98,7 @@
 	main {
 		display: grid;
 		gap: 10px;
-		grid-template-columns: 1fr 1fr 1fr;
-		font-size: 25vw;
+		grid-template-columns: repeat(4, 1fr);
+		font-size: calc(100vw / 4 * 0.7);
 	}
 </style>
