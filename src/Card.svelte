@@ -27,7 +27,7 @@
         border-radius: 7%;
         background-color: #888;
         border: 0 solid transparent;
-        transform: perspective(10cm) rotateY(0deg) scale(0.85);
+        transform: perspective(10cm) rotateY(0deg) scale(0.9);
         transition: transform 0.3s ease-in-out, background-color 0s 0.15s,
             box-shadow 0s 0.15s, border 0.3s;
         box-shadow: inset -2px -2px 2px black, inset 2px 2px 2px white;

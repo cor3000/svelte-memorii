@@ -1,42 +1,79 @@
 <script lang="ts">
 	import { tick } from "svelte";
+	import { emojisFlat } from "./emojis";
 	import Card from "./Card.svelte";
 
-	function shuffleArray(array) {
+	function shuffleArray(array: any[]): any[] {
 		for (var i = array.length - 1; i > 0; i--) {
 			var j = Math.floor(Math.random() * (i + 1));
 			var temp = array[i];
 			array[i] = array[j];
 			array[j] = temp;
 		}
+		return array;
 	}
 
 	const iconSets: string[] = ["animal", "number"];
 	let selectedIconSet: string = iconSets[0];
 
-	const allCards: any[] = [
-		{ id: 0, color: "lightblue", number: "1", animal: "\\1f989" },
-		{ id: 1, color: "greenyellow", number: "2", animal: "\\1f420" },
-		{ id: 2, color: "red", number: "3", animal: "\\1f422" },
-		{ id: 3, color: "purple", number: "4", animal: "\\1f40c" },
-		{ id: 4, color: "orange", number: "5", animal: "\\1f98b" },
-		{ id: 5, color: "hotpink", number: "6", animal: "\\1f41d" },
-		{ id: 6, color: "forestgreen", number: "7", animal: "\\1f41e" },
-		{ id: 7, color: "royalblue", number: "8", animal: "\\1f986" },
+	const allColors: any[] = [
+		"lightblue",
+		"greenyellow",
+		"salmon",
+		"purple",
+		"orange",
+		"hotpink",
+		"forestgreen",
+		"royalblue",
+		"crimson",
+		"sandybrown",
+		"slateblue",
+		"goldenrod",
+		"orangered",
+		"deeppink",
+		"pink",
+		"blueviolet",
+		"dodgerblue",
+		"navy",
+		"deepskyblue",
+		"yellowgreen",
+		"springgreen",
 	];
 
-	const initCard = (card) => {
-		return { ...card, icon: card[selectedIconSet] };
-	};
+	function initCards(numCards) {
+		const numPairs = numCards / 2;
+		const colors = shuffleArray([...allColors]).slice(0, numPairs);
+		const icons = shuffleArray([...emojisFlat]).slice(0, numPairs);
 
-	function initCards() {
-		var cards = [...allCards.map(initCard), ...allCards.map(initCard)];
-		shuffleArray(cards);
-		return cards;
+		const newCards = [];
+		icons.forEach((icon, index) => {
+			const card = {
+				id: index,
+				icon: icon,
+				color: colors[index],
+			};
+			newCards.push(card);
+			newCards.push({ ...card });
+		});
+		return shuffleArray(newCards);
 	}
 
-	let cards: any[] = initCards();
+	let numCards = 12;
+	let numCols: number;
+	let numRows: number;
+	initGrid();
+	let cards: any[] = initCards(numCards);
 	let openCards: any[] = [];
+
+	function initGrid() {
+		if (numCards == 24) {
+			numCols = 4;
+			numRows = 6;
+		} else {
+			numCols = Math.round(Math.sqrt(numCards));
+			numRows = Math.ceil(numCards / numCols);
+		}
+	}
 
 	function startGame() {
 		openCards = [];
@@ -45,7 +82,10 @@
 			card.solved = false;
 		});
 		cards = cards;
-		setTimeout(() => (cards = initCards()), 300);
+		setTimeout(() => {
+			cards = initCards(numCards);
+			initGrid();
+		}, 300);
 	}
 
 	let timeoutId;
@@ -82,24 +122,49 @@
 <main>
 	<header>
 		<h1>MEMORII</h1>
-		<button on:click={startGame}>START</button>
-		<select bind:value={selectedIconSet}>
+		<!-- <select bind:value={selectedIconSet}>
 			{#each iconSets as iconSet}
-				<option value={iconSet}>{iconSet}</option>
+			<option value={iconSet}>{iconSet}</option>
 			{/each}
-		</select>
+		</select> -->
+		<label>
+			Size
+			<select bind:value={numCards} on:change={startGame}>
+				<option value="4">4</option>
+				<option value="6">6</option>
+				<option value="8">8</option>
+				<option value="10">10</option>
+				<option value="12">12</option>
+				<option selected value="16">16</option>
+				<option value="20">20</option>
+				<option value="24">24</option>
+				<option value="30">30</option>
+				<option value="36">36</option>
+				<option value="42">42</option>
+			</select>
+		</label>
+		<button on:click={startGame}>New Game</button>
 	</header>
-
-	<div style="--columns: 4; --rows: 4">
+	<div style="--columns: {numCols}; --rows: {numRows}">
 		{#each cards as card}
 			<Card {card} on:flip={() => flipCard(card)} />
 		{/each}
 	</div>
+	<footer />
 </main>
 
 <style>
 	h1 {
 		margin: 0;
+	}
+
+	header {
+		padding: 2vmin;
+		flex: 1;
+		align-self: flex-start;
+	}
+	footer {
+		flex: 1;
 	}
 
 	main {
@@ -114,19 +179,53 @@
 	div {
 		width: 100%;
 		height: 100%;
-		max-height: calc(100vw * 1.333);
-		max-width: calc(100vh);
 		display: grid;
 		padding: 2vmin;
 		gap: 2vmin;
-		grid-template-columns: repeat(var(--columns), 1fr);
-		grid-template-rows: repeat(var(--rows), 1fr);
-		font-size: calc(100vmin / var(--columns) * 0.65);
+	}
+
+	button {
+		border: none;
+		background-color: slateblue;
+		border-radius: 0.2rem;
+		font-size: 1.5rem;
+		color: white;
 	}
 
 	@media (orientation: portrait) {
+		header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			width: 100%;
+		}
 		main {
 			flex-direction: column;
+		}
+		div {
+			max-height: calc(100vw * 1.2 / var(--columns) * var(--rows));
+			max-width: calc(100vh * var(--columns) / var(--rows));
+			grid-template-columns: repeat(var(--columns), 1fr);
+			grid-template-rows: repeat(var(--rows), 1fr);
+			font-size: calc(100vmin / var(--columns) * 0.65);
+		}
+	}
+
+	@media (orientation: landscape) {
+		header {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 10vh;
+		}
+		main {
+		}
+		div {
+			max-height: calc(100vw * var(--columns) / var(--rows));
+			max-width: calc(100vh / var(--columns) * var(--rows));
+			grid-template-columns: repeat(var(--rows), 1fr);
+			grid-template-rows: repeat(var(--columns), 1fr);
+			font-size: calc(100vmin / var(--rows) * 0.65);
 		}
 	}
 </style>
