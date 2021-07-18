@@ -220,7 +220,7 @@
 					<span>🎉</span>
 					<p>{successRatio}</p>
 				{:else if finishType === "givenup"}
-					💩
+					<span>💩</span>
 				{/if}
 			</section>
 		{/if}
