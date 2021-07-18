@@ -77,7 +77,8 @@
 	let numRows: number;
 	initGrid();
 	let cards: any[] = initCards(numCards);
-	let status = "initial";
+	let status: string = "initial";
+	let finishType: string;
 	let openCards: any[] = [];
 
 	function initGrid() {
@@ -93,8 +94,16 @@
 		}
 	}
 
-	function endGame() {
+	function checkGameStatus() {
+		if (!cards.find((c) => !c.solved)) {
+			status = "finished";
+			finishType = "won";
+		}
+	}
+
+	function giveUpGame() {
 		status = "finished";
+		finishType = "givenup";
 		cards.forEach((card, index) => {
 			card.open = true;
 		});
@@ -163,6 +172,7 @@
 				}, 2000);
 			}
 		}
+		checkGameStatus();
 	}
 </script>
 
@@ -170,7 +180,7 @@
 	<header>
 		<h1>MEMORII</h1>
 		{#if status === "playing"}
-			<button on:click={endGame}>GIVE UP</button>
+			<button on:click={giveUpGame}>GIVE UP</button>
 		{:else}
 			<label>
 				Size
@@ -194,6 +204,15 @@
 	</div>
 	<footer />
 </main>
+{#if status === "finished"}
+	<section>
+		{#if finishType === "won"}
+			🎉
+		{:else if finishType === "givenup"}
+			💩
+		{/if}
+	</section>
+{/if}
 
 <style>
 	h1 {
@@ -233,6 +252,19 @@
 		font-size: 1.5rem;
 		color: white;
 		text-align: center;
+	}
+
+	section {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 40vmin;
+		pointer-events: none;
 	}
 
 	@media (orientation: portrait) {
