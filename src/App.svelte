@@ -82,10 +82,12 @@
 	let openCards: any[] = [];
 	let numTurns: number = 0;
 	let numTurnsCorrect: number = 0;
-	$: successRatio =
-		numTurns > 0
-			? Math.round((numTurnsCorrect / numTurns) * 100) + "%"
-			: "";
+	$: successRatio = numTurns > 0 ? numTurnsCorrect / numTurns : NaN;
+	$: successRatioLabel = isNaN(successRatio)
+		? ""
+		: Math.round(successRatio * 100) + "%";
+	const successRatioHistory: number[] = [];
+	let autoIncreaseSize: boolean = false;
 
 	function initGrid() {
 		if (numCards == 24) {
@@ -102,24 +104,49 @@
 
 	function checkGameStatus() {
 		if (!cards.find((c) => !c.dummy && !c.solved)) {
-			status = "finished";
-			finishType = "won";
+			finishGame("won");
 		}
 	}
 
 	function giveUpGame() {
-		status = "finished";
-		finishType = "givenup";
 		cards.forEach((card, index) => {
 			card.open = true;
 		});
 		cards = cards;
+		finishGame("givenup");
+	}
+
+	function finishGame(type) {
+		status = "finished";
+		finishType = type;
+		if (finishType === "won") {
+			successRatioHistory.push(successRatio);
+			autoIncreaseSize =
+				lastValuesGreater(successRatioHistory, 3, 0.4) ||
+				lastValuesGreater(successRatioHistory, 2, 0.5) ||
+				lastValuesGreater(successRatioHistory, 1, 0.6);
+		}
+	}
+
+	function lastValuesGreater(
+		arr: number[],
+		numValues: number,
+		value: number
+	) {
+		if (arr.length >= numValues) {
+			if (!arr.slice(-numValues).find((n) => n < value)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	function updateSize() {
 		cards = initCards(numCards);
 		initGrid();
 		status = "initial";
+		autoIncreaseSize = false;
+		successRatioHistory.length = 0;
 	}
 
 	function startGame() {
@@ -129,6 +156,14 @@
 		if (status === "initial") {
 			status = "playing";
 			return;
+		}
+		console.log(autoIncreaseSize, successRatioHistory);
+		if (autoIncreaseSize) {
+			numCards =
+				allSizes[
+					Math.min(allSizes.indexOf(numCards) + 1, allSizes.length)
+				];
+			updateSize();
 		}
 		setTimeout(() => {
 			cards = initCards(numCards);
@@ -150,10 +185,11 @@
 
 	async function flipCard(card) {
 		if (status !== "playing") {
-			startGame();
 			if (status === "finished") {
+				startGame();
 				return;
 			}
+			startGame();
 		}
 		clearTimeout(timeoutId);
 		if (card.open || card.solved || openCards.length >= 2) {
@@ -190,7 +226,7 @@
 	<header>
 		<h1>MEMORII</h1>
 		{#if status === "playing"}
-			<span>{numTurnsCorrect}/{numTurns} {successRatio}</span>
+			<span>{numTurnsCorrect}/{numTurns} {successRatioLabel}</span>
 			<button on:click={giveUpGame}>GIVE UP</button>
 		{:else}
 			<label>
@@ -216,7 +252,7 @@
 			<section>
 				{#if finishType === "won"}
 					<span>🎉</span>
-					<p>{successRatio}</p>
+					<p>{successRatioLabel}</p>
 				{:else if finishType === "givenup"}
 					<span>💩</span>
 				{/if}
