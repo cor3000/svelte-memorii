@@ -61,7 +61,15 @@
 			newCards.push(card);
 			newCards.push({ ...card });
 		});
-		return shuffleArray(newCards);
+		shuffleArray(newCards);
+		if (numCards == 8) {
+			newCards.splice(4, 0, {});
+		}
+		if (numCards == 10) {
+			newCards.splice(4, 0, {});
+			newCards.splice(7, 0, {});
+		}
+		return newCards;
 	}
 
 	let numCards = 12;
@@ -76,6 +84,9 @@
 		if (numCards == 24) {
 			numCols = 4;
 			numRows = 6;
+		} else if (numCards == 48) {
+			numCols = 6;
+			numRows = 8;
 		} else {
 			numCols = Math.round(Math.sqrt(numCards));
 			numRows = Math.ceil(numCards / numCols);
@@ -83,7 +94,7 @@
 	}
 
 	function endGame() {
-		status = "initial";
+		status = "finished";
 		cards.forEach((card, index) => {
 			card.open = true;
 		});
@@ -93,13 +104,13 @@
 	function updateSize() {
 		cards = initCards(numCards);
 		initGrid();
+		status = "initial";
 	}
 
 	function startGame() {
-		if (!cards.find((c) => !c.open)) {
-			cards = initCards(numCards);
-			initGrid();
+		if (status === "initial") {
 			status = "playing";
+			return;
 		}
 		clearGame();
 		setTimeout(() => {
@@ -122,7 +133,10 @@
 
 	async function flipCard(card) {
 		if (status !== "playing") {
-			return;
+			startGame();
+			if (status === "finished") {
+				return;
+			}
 		}
 		clearTimeout(timeoutId);
 		if (card.open || card.solved || openCards.length >= 2) {
@@ -171,7 +185,11 @@
 	</header>
 	<div style="--columns: {numCols}; --rows: {numRows}">
 		{#each cards as card}
-			<Card {card} on:flip={() => flipCard(card)} />
+			{#if card.id >= 0}
+				<Card {card} on:flip={() => flipCard(card)} />
+			{:else}
+				<div />
+			{/if}
 		{/each}
 	</div>
 	<footer />
