@@ -85,7 +85,7 @@
 	$: successRatio =
 		numTurns > 0
 			? Math.round((numTurnsCorrect / numTurns) * 100) + "%"
-			: "n/a";
+			: "";
 
 	function initGrid() {
 		if (numCards == 24) {
@@ -125,11 +125,11 @@
 	function startGame() {
 		numTurns = 0;
 		numTurnsCorrect = 0;
+		clearGame();
 		if (status === "initial") {
 			status = "playing";
 			return;
 		}
-		clearGame();
 		setTimeout(() => {
 			cards = initCards(numCards);
 			initGrid();
@@ -190,9 +190,7 @@
 	<header>
 		<h1>MEMORII</h1>
 		{#if status === "playing"}
-			{#if numTurns > 0}
-				<span>{numTurnsCorrect}/{numTurns} {successRatio}</span>
-			{/if}
+			<span>{numTurnsCorrect}/{numTurns} {successRatio}</span>
 			<button on:click={giveUpGame}>GIVE UP</button>
 		{:else}
 			<label>
