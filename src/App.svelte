@@ -63,11 +63,11 @@
 		});
 		shuffleArray(newCards);
 		if (numCards == 8) {
-			newCards.splice(4, 0, {});
+			newCards.splice(4, 0, { dummy: true });
 		}
 		if (numCards == 10) {
-			newCards.splice(4, 0, {});
-			newCards.splice(7, 0, {});
+			newCards.splice(4, 0, { dummy: true });
+			newCards.splice(7, 0, { dummy: true });
 		}
 		return newCards;
 	}
@@ -95,7 +95,7 @@
 	}
 
 	function checkGameStatus() {
-		if (!cards.find((c) => !c.solved)) {
+		if (!cards.find((c) => !c.dummy && !c.solved)) {
 			status = "finished";
 			finishType = "won";
 		}
@@ -201,18 +201,18 @@
 				<div />
 			{/if}
 		{/each}
+		{#if status === "finished"}
+			<section>
+				{#if finishType === "won"}
+					🎉
+				{:else if finishType === "givenup"}
+					💩
+				{/if}
+			</section>
+		{/if}
 	</div>
 	<footer />
 </main>
-{#if status === "finished"}
-	<section>
-		{#if finishType === "won"}
-			🎉
-		{:else if finishType === "givenup"}
-			💩
-		{/if}
-	</section>
-{/if}
 
 <style>
 	h1 {
@@ -238,6 +238,7 @@
 	}
 
 	div {
+		position: relative;
 		width: 100%;
 		height: 100%;
 		display: grid;
@@ -265,6 +266,7 @@
 		justify-content: center;
 		font-size: 40vmin;
 		pointer-events: none;
+		text-shadow: 3vmin 3vmin 5vmin black;
 	}
 
 	@media (orientation: portrait) {
@@ -296,6 +298,7 @@
 		main {
 		}
 		div {
+			grid-auto-flow: column;
 			max-height: calc(100vw * var(--columns) / var(--rows));
 			max-width: calc(100vh / var(--columns) * var(--rows));
 			grid-template-columns: repeat(var(--rows), 1fr);
