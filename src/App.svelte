@@ -80,6 +80,12 @@
 	let status: string = "initial";
 	let finishType: string;
 	let openCards: any[] = [];
+	let numTurns: number = 0;
+	let numTurnsCorrect: number = 0;
+	$: successRatio =
+		numTurns > 0
+			? Math.round((numTurnsCorrect / numTurns) * 100) + "%"
+			: "n/a";
 
 	function initGrid() {
 		if (numCards == 24) {
@@ -117,6 +123,8 @@
 	}
 
 	function startGame() {
+		numTurns = 0;
+		numTurnsCorrect = 0;
 		if (status === "initial") {
 			status = "playing";
 			return;
@@ -156,7 +164,9 @@
 		openCards.push(card);
 		cards = cards;
 		if (openCards.length === 2) {
+			numTurns++;
 			if (openCards[0].id === openCards[1].id) {
+				numTurnsCorrect++;
 				openCards[0].solved = true;
 				openCards[1].solved = true;
 				openCards.length = 0;
@@ -180,6 +190,9 @@
 	<header>
 		<h1>MEMORII</h1>
 		{#if status === "playing"}
+			{#if numTurns > 0}
+				<span>{numTurnsCorrect}/{numTurns} {successRatio}</span>
+			{/if}
 			<button on:click={giveUpGame}>GIVE UP</button>
 		{:else}
 			<label>
@@ -204,7 +217,8 @@
 		{#if status === "finished"}
 			<section>
 				{#if finishType === "won"}
-					🎉
+					<span>🎉</span>
+					<p>{successRatio}</p>
 				{:else if finishType === "givenup"}
 					💩
 				{/if}
@@ -262,11 +276,20 @@
 		width: 100%;
 		height: 100%;
 		display: flex;
+		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		font-size: 40vmin;
 		pointer-events: none;
-		text-shadow: 3vmin 3vmin 5vmin black;
+	}
+	section > span {
+		font-size: 40vmin;
+		text-shadow: 2vmin 2vmin 3vmin black;
+	}
+	section > p {
+		margin: 0;
+		padding: 1vmin;
+		font-size: 15vmin;
+		text-shadow: 1vmin 1vmin 2vmin black;
 	}
 
 	@media (orientation: portrait) {
