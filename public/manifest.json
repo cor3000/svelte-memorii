@@ -1,0 +1,23 @@
+{
+    "name": "Memorii",
+    "short_name": "Memorii",
+    "start_url": ".",
+    "display": "fullscreen",
+    "background_color": "black",
+    "theme_color": "black",
+    "description": "A match-2 card flipping game.",
+    "icons": [
+        {
+            "src": "/img/memorii_512.png",
+            "type": "image/png",
+            "sizes": "512x512",
+            "purpose": "maskable"
+        },
+        {
+            "src": "/img/memorii_512.png",
+            "type": "image/png",
+            "sizes": "512x512",
+            "purpose": "any"
+        }
+    ]
+}

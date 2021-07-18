@@ -4,14 +4,33 @@
 <head>
 	<meta charset='utf-8'>
 	<meta name='viewport' content='width=device-width,initial-scale=1'>
+	<link rel="manifest" href="/manifest.json">
+	<meta name="description" content="A match-2 card flipping game.">
 
 	<title>MEMORII</title>
 
 	<link rel='icon' type='image/png' href='/favicon.png'>
+	<link rel='icon' sizes='192x192' href='/img/memorii_256.png'>
+	<link rel='apple-touch-icon' href='/img/memorii_256.png'>
+	<meta name="theme-color" content='black'>
+
 	<link rel='stylesheet' href='/global.css'>
 	<link rel='stylesheet' href='/build/bundle.css'>
 
 	<script defer src='/build/bundle.js'></script>
+
+	<script>
+		if ('serviceWorker' in navigator) {
+			window.addEventListener('load', function () {
+				navigator.serviceWorker.register('/sw.js')
+					.then(function (registration) {
+						console.log('ServiceWorker registration successful with scope: ', registration.scope);
+					}, function (err) {
+						console.log('ServiceWorker registration failed: ', err);
+					});
+			});
+		}
+	</script>
 </head>
 
 <body>
