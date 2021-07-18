@@ -76,16 +76,20 @@
 	}
 
 	function startGame() {
+		clearGame();
+		setTimeout(() => {
+			cards = initCards(numCards);
+			initGrid();
+		}, 1000);
+	}
+
+	function clearGame() {
 		openCards = [];
-		cards.forEach((card) => {
+		cards.forEach((card, index) => {
 			card.open = false;
 			card.solved = false;
 		});
 		cards = cards;
-		setTimeout(() => {
-			cards = initCards(numCards);
-			initGrid();
-		}, 300);
 	}
 
 	let timeoutId;
@@ -134,8 +138,8 @@
 				<option value="6">6</option>
 				<option value="8">8</option>
 				<option value="10">10</option>
-				<option value="12">12</option>
-				<option selected value="16">16</option>
+				<option value="12" selected>12</option>
+				<option value="16">16</option>
 				<option value="20">20</option>
 				<option value="24">24</option>
 				<option value="30">30</option>
@@ -143,7 +147,7 @@
 				<option value="42">42</option>
 			</select>
 		</label>
-		<button on:click={startGame}>New Game</button>
+		<button on:click={startGame}>▶</button>
 	</header>
 	<div style="--columns: {numCols}; --rows: {numRows}">
 		{#each cards as card}
@@ -185,8 +189,9 @@
 	}
 
 	button {
+		padding: 0.2rem 0.7rem;
 		border: none;
-		background-color: slateblue;
+		background-color: grey;
 		border-radius: 0.2rem;
 		font-size: 1.5rem;
 		color: white;
