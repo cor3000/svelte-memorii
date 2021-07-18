@@ -13,32 +13,38 @@
 		return array;
 	}
 
-	const iconSets: string[] = ["animal", "number"];
-	let selectedIconSet: string = iconSets[0];
-
 	const allColors: any[] = [
-		"lightblue",
-		"greenyellow",
-		"salmon",
-		"purple",
-		"orange",
-		"hotpink",
-		"forestgreen",
-		"royalblue",
+		"blueviolet",
+		"cadetblue",
 		"crimson",
+		"deeppink",
+		"deepskyblue",
+		"dodgerblue",
+		"forestgreen",
+		"goldenrod",
+		"greenyellow",
+		"hotpink",
+		"indianred",
+		"indigo",
+		"lightblue",
+		"lightcoral",
+		"navy",
+		"maroon",
+		"mediumseagreen",
+		"mediumvioletred",
+		"orange",
+		"orangered",
+		"pink",
+		"purple",
+		"royalblue",
+		"salmon",
 		"sandybrown",
 		"slateblue",
-		"goldenrod",
-		"orangered",
-		"deeppink",
-		"pink",
-		"blueviolet",
-		"dodgerblue",
-		"navy",
-		"deepskyblue",
-		"yellowgreen",
 		"springgreen",
+		"yellowgreen",
 	];
+
+	const allSizes = [4, 6, 8, 10, 12, 16, 20, 24, 30, 36, 42, 48, 56];
 
 	function initCards(numCards) {
 		const numPairs = numCards / 2;
@@ -63,6 +69,7 @@
 	let numRows: number;
 	initGrid();
 	let cards: any[] = initCards(numCards);
+	let status = "initial";
 	let openCards: any[] = [];
 
 	function initGrid() {
@@ -75,12 +82,31 @@
 		}
 	}
 
+	function endGame() {
+		status = "initial";
+		cards.forEach((card, index) => {
+			card.open = true;
+		});
+		cards = cards;
+	}
+
+	function updateSize() {
+		cards = initCards(numCards);
+		initGrid();
+	}
+
 	function startGame() {
+		if (!cards.find((c) => !c.open)) {
+			cards = initCards(numCards);
+			initGrid();
+			status = "playing";
+		}
 		clearGame();
 		setTimeout(() => {
 			cards = initCards(numCards);
 			initGrid();
-		}, 1000);
+			status = "playing";
+		}, 300);
 	}
 
 	function clearGame() {
@@ -95,6 +121,9 @@
 	let timeoutId;
 
 	async function flipCard(card) {
+		if (status !== "playing") {
+			return;
+		}
 		clearTimeout(timeoutId);
 		if (card.open || card.solved || openCards.length >= 2) {
 			cards = cards;
@@ -126,28 +155,19 @@
 <main>
 	<header>
 		<h1>MEMORII</h1>
-		<!-- <select bind:value={selectedIconSet}>
-			{#each iconSets as iconSet}
-			<option value={iconSet}>{iconSet}</option>
-			{/each}
-		</select> -->
-		<label>
-			Size
-			<select bind:value={numCards} on:change={startGame}>
-				<option value="4">4</option>
-				<option value="6">6</option>
-				<option value="8">8</option>
-				<option value="10">10</option>
-				<option value="12" selected>12</option>
-				<option value="16">16</option>
-				<option value="20">20</option>
-				<option value="24">24</option>
-				<option value="30">30</option>
-				<option value="36">36</option>
-				<option value="42">42</option>
-			</select>
-		</label>
-		<button on:click={startGame}>▶</button>
+		{#if status === "playing"}
+			<button on:click={endGame}>GIVE UP</button>
+		{:else}
+			<label>
+				Size
+				<select bind:value={numCards} on:change={updateSize}>
+					{#each allSizes as size}
+						<option value={size}>{size}</option>
+					{/each}
+				</select>
+			</label>
+			<button on:click={startGame}>START</button>
+		{/if}
 	</header>
 	<div style="--columns: {numCols}; --rows: {numRows}">
 		{#each cards as card}
@@ -189,12 +209,12 @@
 	}
 
 	button {
-		padding: 0.2rem 0.7rem;
 		border: none;
-		background-color: grey;
+		background-color: #444;
 		border-radius: 0.2rem;
 		font-size: 1.5rem;
 		color: white;
+		text-align: center;
 	}
 
 	@media (orientation: portrait) {
