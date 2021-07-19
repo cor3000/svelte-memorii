@@ -82,7 +82,7 @@
 	let openCards: any[] = [];
 	let numTurns: number = 0;
 	let numTurnsCorrect: number = 0;
-	$: successRatio = numTurns > 0 ? numTurnsCorrect / numTurns : NaN;
+	let successRatio = NaN;
 	$: successRatioLabel = isNaN(successRatio)
 		? ""
 		: Math.round(successRatio * 100) + "%";
@@ -128,6 +128,20 @@
 		}
 	}
 
+	function resetTurns() {
+		numTurns = 0;
+		numTurnsCorrect = 0;
+		successRatio = NaN;
+	}
+
+	function incrementTurns(correct) {
+		numTurns++;
+		if (correct) {
+			numTurnsCorrect++;
+		}
+		successRatio = numTurnsCorrect / numTurns;
+	}
+
 	function lastValuesGreater(
 		arr: number[],
 		numValues: number,
@@ -150,8 +164,7 @@
 	}
 
 	function startGame() {
-		numTurns = 0;
-		numTurnsCorrect = 0;
+		resetTurns();
 		clearGame();
 		if (status === "initial") {
 			status = "playing";
@@ -200,14 +213,14 @@
 		openCards.push(card);
 		cards = cards;
 		if (openCards.length === 2) {
-			numTurns++;
 			if (openCards[0].id === openCards[1].id) {
-				numTurnsCorrect++;
+				incrementTurns(true);
 				openCards[0].solved = true;
 				openCards[1].solved = true;
 				openCards.length = 0;
 				cards = cards;
 			} else {
+				incrementTurns(false);
 				let toUnflip = [...openCards];
 				openCards.length = 0;
 				await tick();
