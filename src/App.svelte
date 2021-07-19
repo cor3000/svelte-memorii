@@ -85,7 +85,7 @@
 	let successRatio = NaN;
 	$: successRatioLabel = isNaN(successRatio)
 		? ""
-		: Math.round(successRatio * 100) + "%";
+		: Math.floor(successRatio * 100) + "%";
 	const successRatioHistory: number[] = [];
 	let autoIncreaseSize: boolean = false;
 
