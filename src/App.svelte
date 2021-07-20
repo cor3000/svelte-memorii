@@ -327,7 +327,7 @@
 		align-items: center;
 		justify-content: center;
 		pointer-events: none;
-        background: radial-gradient(rgba(0, 0, 0, 0.6), transparent);
+		background: radial-gradient(rgba(0, 0, 0, 0.6), transparent 80%);
 	}
 	section > span {
 		font-size: 40vmin;
