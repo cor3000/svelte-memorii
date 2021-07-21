@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { fade, scale } from "svelte/transition";
 	import { tick } from "svelte";
 	import { emojisFlat } from "./emojis";
 	import Card from "./Card.svelte";
@@ -113,7 +114,7 @@
 			card.open = true;
 		});
 		cards = cards;
-		finishGame("givenup");
+		setTimeout(() => finishGame("givenup"), 300);
 	}
 
 	function finishGame(type) {
@@ -155,7 +156,9 @@
 		return false;
 	}
 
-	function updateSize() {
+	async function updateSize() {
+		cards = [];
+		await tick(); // clear cards to avoid css transition
 		cards = initCards(numCards);
 		initGrid();
 		status = "initial";
@@ -262,13 +265,15 @@
 			{/if}
 		{/each}
 		{#if status === "finished"}
-			<section>
-				{#if finishType === "won"}
-					<span>🎉</span>
-					<p>{successRatioLabel}</p>
-				{:else if finishType === "givenup"}
-					<span>💩</span>
-				{/if}
+			<section transition:fade={{ duration: 300 }}>
+				<div in:scale={{ duration: 500 }} out:fade={{ duration: 300 }}>
+					{#if finishType === "won"}
+						<span>🎉</span>
+						<p>{successRatioLabel}</p>
+					{:else if finishType === "givenup"}
+						<span>💩</span>
+					{/if}
+				</div>
 			</section>
 		{/if}
 	</div>
@@ -322,18 +327,23 @@
 		left: 0;
 		width: 100%;
 		height: 100%;
+		pointer-events: none;
+		background: radial-gradient(rgba(0, 0, 0, 0.6), transparent 80%);
+	}
+	section > div {
+		position: absolute;
+		width: 100%;
+		height: 100%;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		pointer-events: none;
-		background: radial-gradient(rgba(0, 0, 0, 0.6), transparent 80%);
 	}
-	section > span {
+	section > div > span {
 		font-size: 40vmin;
 		text-shadow: 2vmin 2vmin 3vmin black;
 	}
-	section > p {
+	section > div > p {
 		margin: 0;
 		padding: 1vmin;
 		font-size: 15vmin;

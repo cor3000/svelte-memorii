@@ -13,7 +13,7 @@
     class:open={card.open}
     class:solved={card.solved}
     on:mousedown={flip}
-    on:touchstart|passive={flip}
+    on:touchstart|preventDefault={flip}
 >
     <div class="back">?</div>
     <div class="face" style="--card-color: {card.color}">
