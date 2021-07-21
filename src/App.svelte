@@ -266,7 +266,10 @@
 		{/each}
 		{#if status === "finished"}
 			<section transition:fade={{ duration: 300 }}>
-				<div in:scale={{ duration: 500 }} out:fade={{ duration: 300 }}>
+				<div
+					in:scale={{ duration: 500 }}
+					out:scale={{ duration: 300, start: 3 }}
+				>
 					{#if finishType === "won"}
 						<span>🎉</span>
 						<p>{successRatioLabel}</p>
