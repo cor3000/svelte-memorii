@@ -142,34 +142,40 @@ export const emojisGrouped = {
     }
 };
 
-export const emojisFlat = [].concat(
-    emojisGrouped.animal.amphibian_reptile,
-    emojisGrouped.animal.bird,
-    emojisGrouped.animal.bug,
-    emojisGrouped.animal.mammal,
-    emojisGrouped.animal.marine,
-    emojisGrouped.plant.flower,
-    emojisGrouped.plant.other,
-    emojisGrouped.food.asian,
-    emojisGrouped.food.dishware,
-    emojisGrouped.food.drink,
-    emojisGrouped.food.fruit,
-    emojisGrouped.food.marine,
-    emojisGrouped.food.prepared,
-    emojisGrouped.food.sweet,
-    emojisGrouped.food.vegetable,
-    emojisGrouped.travel_places.transport_air,
-    emojisGrouped.travel_places.transport_ground,
-    emojisGrouped.travel_places.transport_water,
-    emojisGrouped.activities.arts_crafts,
-    emojisGrouped.activities.game,
-    emojisGrouped.activities.sport,
-    emojisGrouped.objects.clothing,
-    emojisGrouped.objects.household,
-    emojisGrouped.objects.light_video,
-    emojisGrouped.objects.medical,
-    emojisGrouped.objects.musical_instrument,
-    emojisGrouped.objects.science,
-    emojisGrouped.objects.sound,
-    emojisGrouped.objects.tool,
-);
+export const cardColors = [
+    "blueviolet",
+    "cadetblue",
+    "crimson",
+    "deeppink",
+    "deepskyblue",
+    "dodgerblue",
+    "forestgreen",
+    "goldenrod",
+    "greenyellow",
+    "hotpink",
+    "indianred",
+    "indigo",
+    "lightblue",
+    "lightcoral",
+    "navy",
+    "maroon",
+    "mediumseagreen",
+    "mediumvioletred",
+    "orange",
+    "orangered",
+    "pink",
+    "purple",
+    "royalblue",
+    "salmon",
+    "sandybrown",
+    "slateblue",
+    "springgreen",
+    "yellowgreen",
+];
+
+
+export const emojisFlat =
+    Object.values(emojisGrouped)
+        .flatMap(Object.values)
+        .flatMap(Object.values);
+

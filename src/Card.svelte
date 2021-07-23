@@ -23,11 +23,11 @@
 
 <style>
     div.card {
+        cursor: pointer;
         width: 100%;
         height: 100%;
         position: relative;
         border-radius: 7%;
-        transform: scale(0.9);
         transform-style: preserve-3d;
         transition: transform 0.3s ease-in-out;
     }
