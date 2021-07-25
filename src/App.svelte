@@ -1,117 +1,32 @@
 <script lang="ts">
 	import { fade, scale } from "svelte/transition";
-	import { tick } from "svelte";
-	import { config } from "./state/configStore";
-	import { gameStore as game } from "./state/gameStore";
-	import { actions } from "./state/gameStore";
+	import { configStore, actions as configActions } from "./state/configStore";
+	import { gameStore, actions as gameActions } from "./state/gameStore";
+	import { delay, lastValuesGreater } from "./utils";
+	import { settings } from "./settings";
+
 	import Card from "./Card.svelte";
-
-	const allSizes = [4, 6, 8, 10, 12, 16, 20, 24, 30, 36, 42, 48, 56];
-
-	let spokenText;
-	$: {
-		if ($config.speechEnabled) {
-			spokenText = new SpeechSynthesisUtterance("Welcome to Memorii");
-			spokenText.lang = $config.speechLanguage;
-		}
-	}
-
-	actions.initCards($config.numCards);
+	import Config from "./Config.svelte";
 
 	let status: string = "initial";
 	let finishType: string;
-	let numTurns: number = 0;
-	let numTurnsCorrect: number = 0;
-	let successRatio = NaN;
-	$: successRatioLabel = isNaN(successRatio)
-		? ""
-		: Math.floor(successRatio * 100) + "%";
 	const successRatioHistory: number[] = [];
 	let autoIncreaseSize: boolean = false;
 
-	function checkGameStatus() {
-		if (!$game.cards.find((c) => !c.dummy && !c.solved)) {
-			finishGame("won");
-		}
-	}
+	gameActions.initCards($configStore.numCards);
 
-	function giveUpGame() {
-		$game.cards.forEach((card, index) => {
-			card.open = true;
-		});
-		$game.cards = $game.cards;
-		setTimeout(() => finishGame("givenup"), 300);
-	}
-
-	function finishGame(type) {
-		status = "finished";
-		finishType = type;
-		if (finishType === "won") {
-			successRatioHistory.push(successRatio);
-			autoIncreaseSize =
-				lastValuesGreater(successRatioHistory, 3, 0.4) ||
-				lastValuesGreater(successRatioHistory, 2, 0.5) ||
-				lastValuesGreater(successRatioHistory, 1, 0.6);
-		}
-	}
-
-	function resetTurns() {
-		numTurns = 0;
-		numTurnsCorrect = 0;
-		successRatio = NaN;
-	}
-
-	function incrementTurns(correct) {
-		numTurns++;
-		if (correct) {
-			numTurnsCorrect++;
-		}
-		successRatio = numTurnsCorrect / numTurns;
-	}
-
-	function lastValuesGreater(
-		arr: number[],
-		numValues: number,
-		value: number
-	) {
-		if (arr.length >= numValues) {
-			if (!arr.slice(-numValues).find((n) => n < value)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	async function updateSize() {
-		$game.cards = [];
-		await tick(); // clear cards to avoid css transition
-		actions.initCards($config.numCards);
-		status = "initial";
-		autoIncreaseSize = false;
-		successRatioHistory.length = 0;
-	}
-
-	function startGame() {
-		resetTurns();
-		actions.clearGame();
+	async function startGame() {
 		if (status === "initial") {
 			status = "playing";
 			return;
 		}
 		if (autoIncreaseSize) {
-			$config.numCards =
-				allSizes[
-					Math.min(
-						allSizes.indexOf($config.numCards) + 1,
-						allSizes.length
-					)
-				];
-			updateSize();
+			configActions.increaseSize();
+			await updateSize();
+		} else {
+			await clearGame();
 		}
-		setTimeout(() => {
-			actions.initCards($config.numCards);
-			status = "playing";
-		}, 300);
+		status = "playing";
 	}
 
 	async function flipCard(card) {
@@ -122,45 +37,76 @@
 			}
 			startGame();
 		}
-		actions.flipCard(card);
+		gameActions.flipCard(card);
 		checkGameStatus();
 	}
+
+	function checkGameStatus() {
+		if (!$gameStore.cards.find((c) => !c.dummy && !c.solved)) {
+			finishGame("won");
+		}
+	}
+
+	function giveUpGame() {
+		$gameStore.cards.forEach((card, index) => {
+			card.open = true;
+		});
+		$gameStore.cards = $gameStore.cards;
+		setTimeout(() => finishGame("givenup"), 300);
+	}
+
+	function finishGame(type) {
+		status = "finished";
+		finishType = type;
+		if (finishType === "won") {
+			successRatioHistory.push($gameStore.stats.successRatio);
+			autoIncreaseSize =
+				lastValuesGreater(successRatioHistory, 3, 0.4) ||
+				lastValuesGreater(successRatioHistory, 2, 0.5) ||
+				lastValuesGreater(successRatioHistory, 1, 0.6);
+		}
+	}
+
+	async function updateSize() {
+		autoIncreaseSize = false;
+		successRatioHistory.length = 0;
+		await clearGame();
+		gameActions.initCards($configStore.numCards);
+	}
+
+	async function clearGame() {
+		if (status !== "initial") {
+			gameActions.clearGame();
+			await delay(settings.cardFlipDuration); // wait for card flip animation
+			gameActions.initCards($configStore.numCards);
+			status = "initial";
+		}
+		return null;
+	}
+
+	$: successRatioLabel = isNaN($gameStore.stats.successRatio)
+		? ""
+		: Math.floor($gameStore.stats.successRatio * 100) + "%";
 </script>
 
 <main>
 	<header>
 		<h1>MEMORII</h1>
 		{#if status === "playing"}
-			<span>{numTurnsCorrect}/{numTurns} {successRatioLabel}</span>
+			<span
+				>{$gameStore.stats.numTurnsCorrect}/{$gameStore.stats.numTurns}
+				{successRatioLabel}</span
+			>
 			<button on:click={giveUpGame}>GIVE UP</button>
 		{:else}
-			<label>
-				Size
-				<select bind:value={$config.numCards} on:change={updateSize}>
-					{#each allSizes as size}
-						<option value={size}>{size}</option>
-					{/each}
-				</select>
-			</label>
-			<label>
-				Speech
-				<input type="checkbox" bind:checked={$config.speechEnabled} />
-			</label>
-			{#if $config.speechEnabled}
-				<label>
-					Language
-					<select bind:value={$config.speechLanguage}>
-						<option value="de">Deutsch</option>
-						<option value="zh-tw">Taiwanisch</option>
-						<option value="en">English</option>
-					</select>
-				</label>
-			{/if}
+			<Config on:changeSize={updateSize} />
 			<button on:click={startGame}>START</button>
 		{/if}
 	</header>
-	<div style="--columns: {$game.numCols}; --rows: {$game.numRows}">
-		{#each $game.cards as card}
+	<div
+		style="--columns: {$gameStore.numCols}; --rows: {$gameStore.numRows}; --flipDuration: {settings.cardFlipDuration}ms"
+	>
+		{#each $gameStore.cards as card}
 			{#if card.id >= 0}
 				<Card {card} on:flip={() => flipCard(card)} />
 			{:else}
@@ -196,18 +142,16 @@
 		position: relative;
 		height: calc(100vh);
 		display: flex;
-		justify-content: center;
+		justify-content: space-between;
 		align-items: center;
 		overflow: hidden;
 	}
 
 	header {
 		padding: 2vmin;
-		flex: 1;
 		align-self: flex-start;
 	}
 	footer {
-		flex: 1;
 	}
 
 	div {

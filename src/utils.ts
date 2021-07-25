@@ -8,3 +8,18 @@ export const shuffle = function (inArray: any[]): any[] {
     }
     return array;
 }
+
+export const lastValuesGreater = function (arr: number[], numValues: number, value: number): boolean {
+    if (arr.length >= numValues) {
+        if (!arr.slice(-numValues).find((n) => n < value)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+export const delay = function (delay) {
+    return new Promise(function (resolve) {
+        setTimeout(resolve, delay);
+    });
+}

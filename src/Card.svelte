@@ -1,5 +1,6 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
+    import { settings } from "./settings";
     export let card: any;
 
     const dispatch = createEventDispatcher();
@@ -29,7 +30,7 @@
         position: relative;
         border-radius: 7%;
         transform-style: preserve-3d;
-        transition: transform 0.3s ease-in-out;
+        transition: transform var(--flipDuration) ease-in-out;
     }
     div.card.open {
         transform: rotateY(180deg);
@@ -64,6 +65,7 @@
     }
     div.card.solved > div.face {
         border: 0.7vmin solid wheat;
-        transition: transform 0.3s ease-in-out, border-color 0.3s 0s;
+        transition: transform var(--flipDuration) ease-in-out,
+            border-color var(--flipDuration) 0s;
     }
 </style>

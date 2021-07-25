@@ -178,4 +178,3 @@ export const emojisFlat =
     Object.values(emojisGrouped)
         .flatMap(Object.values)
         .flatMap(Object.values);
-

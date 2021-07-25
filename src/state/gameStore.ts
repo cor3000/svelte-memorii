@@ -1,12 +1,18 @@
 import { writable } from 'svelte/store';
 
 import { randomDeck } from "./deck";
+import { speakCard } from "./speech";
 
 export const gameStore = writable({
     cards: [],
     numCards: 12,
     numCols: 3,
     numRows: 4,
+    stats: {
+        numTurns: 0,
+        numTurnsCorrect: 0,
+        successRatio: NaN
+    }
 });
 
 const initCards = function (numCards) {
@@ -24,12 +30,26 @@ const clearGame = function () {
     gameStore.update(game => {
         return {
             ...game,
-            openCards: undefined,
+            stats: {
+                numTurns: 0,
+                numTurnsCorrect: 0,
+                successRatio: NaN
+            },
             cards: game.cards.map(card => { return { ...card, open: false, solved: false } })
         }
     });
 }
 
+function incrementTurns(stats, correct) {
+    const numTurns = stats.numTurns + 1;
+    const numTurnsCorrect = stats.numTurnsCorrect + (correct ? 1 : 0);
+    return {
+        ...stats,
+        numTurns,
+        numTurnsCorrect,
+        successRatio: numTurnsCorrect / numTurns
+    }
+}
 
 const calcGrid = function (numCards) {
     if (numCards == 24) {
@@ -42,8 +62,6 @@ const calcGrid = function (numCards) {
     }
 }
 
-let unflipTimeout;
-let toUnflip: number[];
 
 const findByUuid = function (cards: any[], uuid: number) {
     return cards.find(c => uuid === c.uuid);
@@ -62,12 +80,6 @@ const replaceAllByUuid = function (cards: any[], cardsToReplace: any[]) {
 }
 
 const flipCard = async function (cardToFlip) {
-    const unflipCurrent = function (cards) {
-        replaceAllByUuid(cards,
-            findOpenCards(cards)
-                .map(c => { return { ...c, open: false } }));
-    }
-
     gameStore.update(game => {
         const cards = [...game.cards];
 
@@ -76,49 +88,47 @@ const flipCard = async function (cardToFlip) {
             return game;
         }
 
-        clearTimeout(unflipTimeout);
         if (openCards.length === 2) {
-            unflipCurrent(cards);
+            replaceAllByUuid(cards,
+                findOpenCards(cards)
+                    .map(c => { return { ...c, open: false } }));
         }
 
         const flippedCard = { ...cardToFlip, open: true }
+        let stats = game.stats;
 
-        let openCard;
         if (openCards.length === 1) {
             const openCard = { ...openCards[0] };
             if (openCard.id === flippedCard.id) {
-                // if ($config.speechEnabled) {
-                //     spokenText.text = card.icon;
-                //     speechSynthesis.speak(spokenText);
-                // }
-                //incrementTurns(true);
+                speakCard(flippedCard);
+                stats = incrementTurns(game.stats, true);
                 openCard.solved = true;
                 replaceByUuid(cards, openCard);
                 flippedCard.solved = true;
             } else {
-                //incrementTurns(false);
-                unflipTimeout = setTimeout(() => {
-                    gameStore.update(game => {
-                        const cards = [...game.cards];
-                        unflipCurrent(cards);
-                        return { ...game, cards }
-                    })
-                }, 2000);
+                stats = incrementTurns(game.stats, false);
             }
         }
 
         replaceByUuid(cards, flippedCard);
-        const updated = {
-            ...game, cards
+        return {
+            ...game, cards, stats
         }
-        console.log(game, updated);
-        return updated;
     });
 }
-
+const unflipCards = function () {
+    gameStore.update(game => {
+        const cards = [...game.cards];
+        replaceAllByUuid(cards,
+            findOpenCards(cards)
+                .map(c => { return { ...c, open: false } }));
+        return { ...game, cards }
+    })
+}
 
 export const actions = {
     initCards,
     clearGame,
-    flipCard
+    flipCard,
+    unflipCards
 }
