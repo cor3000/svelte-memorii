@@ -30,11 +30,7 @@
 	}
 
 	async function flipCard(card) {
-		if (status !== "playing") {
-			if (status === "finished") {
-				startGame();
-				return;
-			}
+		if (status === "initial") {
 			startGame();
 		}
 		gameActions.flipCard(card);
@@ -84,6 +80,11 @@
 		return null;
 	}
 
+	let configOpen: boolean = false;
+	const toggleConfig = function () {
+		configOpen = !configOpen;
+	};
+
 	$: successRatioLabel = isNaN($gameStore.stats.successRatio)
 		? ""
 		: Math.floor($gameStore.stats.successRatio * 100) + "%";
@@ -93,14 +94,13 @@
 	<header>
 		<h1>MEMORII</h1>
 		{#if status === "playing"}
-			<span
-				>{$gameStore.stats.numTurnsCorrect}/{$gameStore.stats.numTurns}
-				{successRatioLabel}</span
-			>
-			<button on:click={giveUpGame}>GIVE UP</button>
+			<span>
+				{$gameStore.stats.numTurnsCorrect}/{$gameStore.stats.numTurns}
+				{successRatioLabel}
+			</span>
+			<button on:click={giveUpGame}>give up</button>
 		{:else}
-			<Config on:changeSize={updateSize} />
-			<button on:click={startGame}>START</button>
+			<button on:click={toggleConfig}>config</button>
 		{/if}
 	</header>
 	<div
@@ -114,7 +114,7 @@
 			{/if}
 		{/each}
 		{#if status === "finished"}
-			<section transition:fade={{ duration: 300 }}>
+			<section transition:fade={{ duration: 300 }} on:click={startGame}>
 				<div
 					in:scale={{ duration: 500 }}
 					out:scale={{ duration: 300, start: 2 }}
@@ -132,6 +132,9 @@
 	</div>
 	<footer />
 </main>
+{#if configOpen}
+	<Config on:changeSize={updateSize} on:closeConfig={toggleConfig} />
+{/if}
 
 <style>
 	h1 {
@@ -168,8 +171,9 @@
 		border: none;
 		background-color: #444;
 		border-radius: 0.2rem;
-		font-size: 1.5rem;
-		color: white;
+		font-size: 1.2rem;
+		padding: 0.4rem 1rem;
+		color: #aaa;
 		text-align: center;
 	}
 
@@ -179,7 +183,6 @@
 		left: 0;
 		width: 100%;
 		height: 100%;
-		pointer-events: none;
 		background: radial-gradient(rgba(0, 0, 0, 0.6), transparent 80%);
 	}
 	section > div {
