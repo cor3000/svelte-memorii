@@ -1,22 +1,35 @@
 import { configStore } from "./configStore";
 
-const utterance = SpeechSynthesisUtterance ? new SpeechSynthesisUtterance("") : null;
+let utterance;
 let speechEnabled;
 
 configStore.subscribe(config => {
-    if (config.speechEnabled) {
-        utterance.text = "OK";
-        utterance.lang = config.speechLanguage;
-        if (!speechEnabled) {
-            speechSynthesis.speak(utterance);
+    if (config.speech) {
+        if (config.speech.enabled) {
+            utterance = new SpeechSynthesisUtterance("");
+            utterance.text = "🐕🐈🐁";
+            if (config.speech.voiceURI) {
+                utterance.voice = findVoice(config.speech.voiceURI);
+            } else {
+                utterance.lang = config.speech.lang;
+            }
+            if (!speechEnabled) {
+                speechSynthesis.speak(utterance);
+            }
         }
+        speechEnabled = config.speech.enabled;
+    } else {
+        speechEnabled = false;
     }
-    speechEnabled = config.speechEnabled;
 })
 
 export const speakCard = function (card: any) {
-    if (speechEnabled && utterance) {
+    if (speechEnabled) {
         utterance.text = card.icon;
         speechSynthesis.speak(utterance);
     }
+}
+
+function findVoice(voiceURI: any): any {
+    return window.speechSynthesis.getVoices().find(voice => voice.voiceURI === voiceURI);
 }
