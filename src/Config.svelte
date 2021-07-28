@@ -3,7 +3,7 @@
     import { configStore } from "./state/configStore";
     import { allSizes, allVoices } from "./state/configStore";
     import { createEventDispatcher } from "svelte";
-    import { each } from "svelte/internal";
+    import { speakText } from "./state/speech";
 
     const dispatch = createEventDispatcher();
     function changeSize(event) {
@@ -11,6 +11,10 @@
     }
     function closeConfig(event) {
         dispatch("closeConfig", event.detail);
+    }
+
+    function testVoice() {
+        speakText("🐕 🍎 🍌");
     }
 </script>
 
@@ -46,29 +50,17 @@
             </p>
             {#if $configStore.speech.enabled}
                 <p>
-                    {#if allVoices !== null}
-                        <label>
-                            Voice TEST
-                            <select bind:value={$configStore.speech.voiceURI}>
-                                {#each allVoices as voice}
-                                    <option value={voice.voiceURI}>
-                                        {voice.name}
-                                    </option>
-                                {/each}
-                            </select>
-                        </label>
-                    {:else}
-                        <label>
-                            Language
-                            <select bind:value={$configStore.speech.lang}>
-                                <option value="de-DE">de-DE</option>
-                                <option value="en-US">en-US</option>
-                                <option value="en-GB">en-GB</option>
-                                <option value="fr-FR">fr-FR</option>
-                                <option value="zh-TW">zh-TW</option>
-                            </select>
-                        </label>
-                    {/if}
+                    <label>
+                        Voice
+                        <select bind:value={$configStore.speech.voiceURI}>
+                            {#each allVoices as voice}
+                                <option value={voice.voiceURI}>
+                                    {voice.name} ({voice.lang})
+                                </option>
+                            {/each}
+                        </select>
+                    </label>
+                    <button on:click={testVoice}>Test</button>
                 </p>
             {/if}
         {/if}

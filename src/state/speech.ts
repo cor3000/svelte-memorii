@@ -7,14 +7,10 @@ configStore.subscribe(config => {
     if (config.speech) {
         if (config.speech.enabled) {
             utterance = new SpeechSynthesisUtterance("");
-            utterance.text = "🐕🐈🐁";
             if (config.speech.voiceURI) {
-                utterance.voice = findVoice(config.speech.voiceURI);
-            } else {
-                utterance.lang = config.speech.lang;
-            }
-            if (!speechEnabled) {
-                speechSynthesis.speak(utterance);
+                const voice = findVoice(config.speech.voiceURI);
+                utterance.voice = voice;
+                utterance.lang = voice.lang;
             }
         }
         speechEnabled = config.speech.enabled;
@@ -24,11 +20,16 @@ configStore.subscribe(config => {
 })
 
 export const speakCard = function (card: any) {
+    speakText(card.icon);
+}
+
+export const speakText = function (text: string) {
     if (speechEnabled) {
-        utterance.text = card.icon;
+        utterance.text = text;
         speechSynthesis.speak(utterance);
     }
 }
+
 
 function findVoice(voiceURI: any): any {
     return window.speechSynthesis.getVoices().find(voice => voice.voiceURI === voiceURI);
