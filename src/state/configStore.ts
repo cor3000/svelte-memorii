@@ -24,7 +24,7 @@ setTimeout(() => {
             voiceURI: defaultVoice()?.voiceURI
         };
     });
-}, 0);
+}, 1000);
 
 const increaseSize = function () {
     configStore.update(config => {
