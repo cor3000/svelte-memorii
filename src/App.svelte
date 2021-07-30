@@ -55,11 +55,11 @@
 		status = "finished";
 		finishType = type;
 		if (finishType === "won") {
-			successRatioHistory.push($gameStore.stats.successRatio);
+			successRatioHistory.push($gameStore.stats.errorRatio);
 			autoIncreaseSize =
-				lastValuesGreater(successRatioHistory, 3, 0.4) ||
-				lastValuesGreater(successRatioHistory, 2, 0.5) ||
-				lastValuesGreater(successRatioHistory, 1, 0.6);
+				lastValuesGreater(successRatioHistory, 3, 0.75) ||
+				lastValuesGreater(successRatioHistory, 2, 0.9) ||
+				lastValuesGreater(successRatioHistory, 1, 1);
 		}
 	}
 
@@ -85,9 +85,9 @@
 		configOpen = !configOpen;
 	};
 
-	$: successRatioLabel = isNaN($gameStore.stats.successRatio)
+	$: successRatioLabel = isNaN($gameStore.stats.errorRatio)
 		? ""
-		: Math.floor($gameStore.stats.successRatio * 100) + "%";
+		: Math.floor((1 - $gameStore.stats.errorRatio) * 100) + "%";
 </script>
 
 <main>
@@ -95,7 +95,7 @@
 		<h1>MEMORII</h1>
 		{#if status === "playing"}
 			<span>
-				{$gameStore.stats.numTurnsCorrect}/{$gameStore.stats.numTurns}
+				{$gameStore.stats.numErrors}/{$gameStore.stats.numTurns}
 				{successRatioLabel}
 			</span>
 			<button on:click={giveUpGame}>give up</button>

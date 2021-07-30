@@ -3,16 +3,19 @@ import { writable } from 'svelte/store';
 import { randomDeck } from "./deck";
 import { speakCard } from "./speech";
 
+const initialStats = {
+    numTurns: 0,
+    numErrors: 0,
+    knownCards: new Set(),
+    errorRatio: NaN
+};
+
 export const gameStore = writable({
     cards: [],
     numCards: 12,
     numCols: 3,
     numRows: 4,
-    stats: {
-        numTurns: 0,
-        numTurnsCorrect: 0,
-        successRatio: NaN
-    }
+    stats: initialStats
 });
 
 const initCards = function (numCards) {
@@ -30,24 +33,32 @@ const clearGame = function () {
     gameStore.update(game => {
         return {
             ...game,
-            stats: {
-                numTurns: 0,
-                numTurnsCorrect: 0,
-                successRatio: NaN
-            },
+            stats: initialStats,
             cards: game.cards.map(card => { return { ...card, open: false, solved: false } })
         }
     });
 }
 
-function incrementTurns(stats, correct) {
+function recordTurn(cards, stats, [card1, card2]) {
+    var otherCard1 = findOtherCard(cards, card1);
+    const error = card1.id !== card2.id
+        && (stats.knownCards.has(card1.uuid)
+            || stats.knownCards.has(otherCard1.uuid)
+            || stats.knownCards.has(card2.uuid));
+
+    const knownCards = new Set(stats.knownCards);
+    knownCards.add(card1.uuid);
+    knownCards.add(card2.uuid);
+
     const numTurns = stats.numTurns + 1;
-    const numTurnsCorrect = stats.numTurnsCorrect + (correct ? 1 : 0);
+    const numErrors = stats.numErrors + (error ? 1 : 0);
+
     return {
         ...stats,
         numTurns,
-        numTurnsCorrect,
-        successRatio: numTurnsCorrect / numTurns
+        numErrors,
+        knownCards,
+        errorRatio: numErrors / numTurns
     }
 }
 
@@ -62,6 +73,10 @@ const calcGrid = function (numCards) {
     }
 }
 
+
+const findOtherCard = function (cards: any[], card: any) {
+    return cards.find(c => card.id === c.id && card.uuid !== c.uuid);
+}
 
 const findByUuid = function (cards: any[], uuid: number) {
     return cards.find(c => uuid === c.uuid);
@@ -101,13 +116,11 @@ const flipCard = async function (cardToFlip) {
             const openCard = { ...openCards[0] };
             if (openCard.id === flippedCard.id) {
                 speakCard(flippedCard);
-                stats = incrementTurns(game.stats, true);
                 openCard.solved = true;
                 replaceByUuid(cards, openCard);
                 flippedCard.solved = true;
-            } else {
-                stats = incrementTurns(game.stats, false);
             }
+            stats = recordTurn(cards, game.stats, [openCard, flippedCard]);
         }
 
         replaceByUuid(cards, flippedCard);
