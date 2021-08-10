@@ -85,9 +85,33 @@
 		configOpen = !configOpen;
 	};
 
-	$: successRatioLabel = isNaN($gameStore.stats.errorRatio)
-		? ""
-		: Math.floor((1 - $gameStore.stats.errorRatio) * 100) + "%";
+	$: successRatioLabel = "";
+	$: ratingLabel = "";
+	$: {
+		const errorRatio = $gameStore.stats.errorRatio;
+		if (isNaN(errorRatio)) {
+			successRatioLabel = "";
+			ratingLabel = "";
+		} else {
+			successRatioLabel =
+				Math.floor((1 - $gameStore.stats.errorRatio) * 100) + "%";
+			if (errorRatio === 0) {
+				ratingLabel = "⭐⭐⭐ Perfect!";
+			} else if (errorRatio <= 0.08) {
+				ratingLabel = "⭐⭐ Excellent!";
+			} else if (errorRatio <= 0.15) {
+				ratingLabel = "⭐ Impressive!";
+			} else if (errorRatio <= 0.2) {
+				ratingLabel = "Amazing";
+			} else if (errorRatio <= 0.3) {
+				ratingLabel = "Very Good";
+			} else if (errorRatio <= 0.5) {
+				ratingLabel = "Good";
+			} else {
+				ratingLabel = "Well Done";
+			}
+		}
+	}
 </script>
 
 <main>
@@ -120,7 +144,7 @@
 					out:scale={{ duration: 300, start: 2 }}
 				>
 					{#if finishType === "won"}
-						<p>{successRatioLabel ? "Well Done!" : ""}</p>
+						<p>{ratingLabel}</p>
 						<span>🎉</span>
 						<p>{successRatioLabel}</p>
 					{:else if finishType === "givenup"}
@@ -203,6 +227,7 @@
 		padding: 1vmin;
 		font-size: 15vmin;
 		text-shadow: 1vmin 1vmin 2vmin black;
+		text-align: center;
 	}
 
 	@media (orientation: portrait) {
