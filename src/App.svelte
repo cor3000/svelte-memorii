@@ -55,10 +55,10 @@
 		status = "finished";
 		finishType = type;
 		if (finishType === "won") {
-			successRatioHistory.push($gameStore.stats.errorRatio);
+			successRatioHistory.push(1 - $gameStore.stats.errorRatio);
 			autoIncreaseSize =
-				lastValuesGreater(successRatioHistory, 3, 0.75) ||
-				lastValuesGreater(successRatioHistory, 2, 0.9) ||
+				lastValuesGreater(successRatioHistory, 3, 0.85) ||
+				lastValuesGreater(successRatioHistory, 2, 0.925) ||
 				lastValuesGreater(successRatioHistory, 1, 1);
 		}
 	}
