@@ -7,6 +7,7 @@
 
 	import Card from "./Card.svelte";
 	import Config from "./Config.svelte";
+import { start_hydrating } from "svelte/internal";
 
 	let status: string = "initial";
 	let finishType: string;
@@ -85,8 +86,9 @@
 		configOpen = !configOpen;
 	};
 
-	$: successRatioLabel = "";
-	$: ratingLabel = "";
+	let successRatioLabel = "";
+	let ratingLabel = "";
+	let starRating = "";
 	$: {
 		const errorRatio = $gameStore.stats.errorRatio;
 		if (isNaN(errorRatio)) {
@@ -96,19 +98,26 @@
 			successRatioLabel =
 				Math.floor((1 - $gameStore.stats.errorRatio) * 100) + "%";
 			if (errorRatio === 0) {
-				ratingLabel = "⭐⭐⭐ Perfect!";
+				ratingLabel =  "Perfect!";
+				starRating = "⭐⭐⭐";
 			} else if (errorRatio <= 0.08) {
-				ratingLabel = "⭐⭐ Excellent!";
+				ratingLabel = "Excellent!";
+				starRating = "⭐⭐";
 			} else if (errorRatio <= 0.15) {
-				ratingLabel = "⭐ Impressive!";
+				ratingLabel = "Impressive!";
+				starRating = "⭐";
 			} else if (errorRatio <= 0.2) {
 				ratingLabel = "Amazing";
+				starRating = "";
 			} else if (errorRatio <= 0.3) {
 				ratingLabel = "Very Good";
+				starRating = "";
 			} else if (errorRatio <= 0.5) {
 				ratingLabel = "Good";
+				starRating = "";
 			} else {
 				ratingLabel = "Well Done";
+				starRating = "";
 			}
 		}
 	}
@@ -145,10 +154,11 @@
 				>
 					{#if finishType === "won"}
 						<p>{ratingLabel}</p>
-						<span>🎉</span>
+						<span class="finish">🎉</span>
+						<span class="stars">{starRating}</span>
 						<p>{successRatioLabel}</p>
 					{:else if finishType === "givenup"}
-						<span>💩</span>
+						<span class="finish">💩</span>
 					{/if}
 				</div>
 			</section>
@@ -218,9 +228,12 @@
 		align-items: center;
 		justify-content: center;
 	}
-	section > div > span {
+	section > div > span.finish {
 		font-size: 40vmin;
 		text-shadow: 2vmin 2vmin 3vmin black;
+	}
+	section > div > span.stars {
+		font-size: 16vmin;
 	}
 	section > div > p {
 		margin: 0;
