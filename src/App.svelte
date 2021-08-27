@@ -229,7 +229,7 @@ import { start_hydrating } from "svelte/internal";
 		justify-content: center;
 	}
 	section > div > span.finish {
-		font-size: 40vmin;
+		font-size: 35vmin;
 		text-shadow: 2vmin 2vmin 3vmin black;
 	}
 	section > div > span.stars {

@@ -52,7 +52,6 @@
         color: #aaa;
     }
     div.card > div.face {
-        border-color: transparent;
         background: linear-gradient(
             150deg,
             white -100%,
@@ -62,7 +61,7 @@
         transform: rotateY(180deg);
     }
     div.card.solved > div.face {
-        border: 0.7vmin solid wheat;
+        border: calc(2vmin / var(--columns)) solid wheat;
         transition: transform var(--flipDuration) ease-in-out,
             border-color var(--flipDuration) 0s;
     }
