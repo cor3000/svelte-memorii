@@ -49,9 +49,7 @@
         text-shadow: 2px 2px 5px black;
     }
     div.card > div.back {
-        color: #bbb;
-        background-color: #666;
-        border: 0.7vmin solid #777;
+        color: #aaa;
     }
     div.card > div.face {
         border-color: transparent;
