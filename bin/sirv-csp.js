@@ -10,7 +10,7 @@ const securityHeaders = {
         media-src 'self'; \
         manifest-src 'self'; \
         img-src 'self'; \
-        style-src 'unsafe-inline'; \
+        style-src 'self' 'unsafe-inline'; \
         frame-ancestors 'none';",
     "Feature-Policy": "notifications 'self'; speaker 'self'",
     "Strict-Transport-Security": "max-age=2592000",
