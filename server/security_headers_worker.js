@@ -5,7 +5,7 @@ const securityHeaders = {
         media-src 'self'; \
         manifest-src 'self'; \
         img-src 'self'; \
-        style-src 'self' 'unsafe-inline'; \
+        style-src 'self'; \
         base-uri 'none'; \
         form-action 'none'; \
         frame-ancestors 'none';",

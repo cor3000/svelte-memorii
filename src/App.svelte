@@ -1,13 +1,13 @@
 <script lang="ts">
-	import { fade, scale } from "svelte/transition";
+	// import { fade, scale } from "svelte/transition";
 	import { configStore, actions as configActions } from "./state/configStore";
 	import { gameStore, actions as gameActions } from "./state/gameStore";
 	import { delay, lastValuesGreater } from "./utils";
 	import { settings } from "./settings";
+	import { fade, scale } from "./transitions";
 
 	import Card from "./Card.svelte";
 	import Config from "./Config.svelte";
-import { start_hydrating } from "svelte/internal";
 
 	let status: string = "initial";
 	let finishType: string;
