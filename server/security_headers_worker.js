@@ -6,6 +6,7 @@ const securityHeaders = {
         manifest-src 'self'; \
         img-src 'self'; \
         style-src 'self' 'unsafe-inline'; \
+        base-uri 'none'; \
         frame-ancestors 'none';",
     // "Feature-Policy": "notifications 'self'; speaker 'self'",
     "Strict-Transport-Security": "max-age=2592000",
