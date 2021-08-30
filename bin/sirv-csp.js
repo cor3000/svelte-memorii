@@ -12,6 +12,7 @@ const securityHeaders = {
         img-src 'self'; \
         style-src 'self' 'unsafe-inline'; \
         base-uri 'none'; \
+        form-action 'none'; \
         frame-ancestors 'none';",
     "Feature-Policy": "notifications 'self'; speaker 'self'",
     "Strict-Transport-Security": "max-age=2592000",
