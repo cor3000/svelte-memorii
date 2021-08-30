@@ -14,7 +14,7 @@ const securityHeaders = {
         base-uri 'none'; \
         form-action 'none'; \
         frame-ancestors 'none';",
-    "Feature-Policy": "notifications 'self'; speaker 'self'",
+    "Permissions-Policy": "fullscreen=(self), geolocation=(), camera=()",
     "Strict-Transport-Security": "max-age=2592000",
     "X-Xss-Protection": "1; mode=block",
     "X-Frame-Options": "DENY",
