@@ -13,15 +13,18 @@ export const configStore = writable({
 
 export const allSizes = [4, 6, 8, 10, 12, 16, 20, 24, 30, 36, 42, 48, 56];
 
-export let allVoices;
+export let allVoices = [];
 setTimeout(() => {
     allVoices = speechAvailable && synth.getVoices().length > 0
         ? synth.getVoices().sort((a, b) => a.name.localeCompare(b.name))
-        : null;
+        : [];
     configStore.update(config => {
         return { 
             ...config, 
-            voiceURI: defaultVoice()?.voiceURI
+            speech: {
+                ...config.speech,
+                voiceURI: defaultVoice()?.voiceURI
+            }
         };
     });
 }, 1000);

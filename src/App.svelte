@@ -125,7 +125,7 @@
 
 <main>
 	<header>
-		<h1>MEMORII</h1>
+		<h1>Memorii</h1>
 		{#if status === "playing"}
 			<span>
 				{$gameStore.stats.numErrors}/{$gameStore.stats.numTurns}

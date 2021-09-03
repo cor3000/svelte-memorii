@@ -21,7 +21,7 @@
 <div transition:fade={{ from: 'top', duration: 300 }} on:click={closeConfig}/>
 <section transition:fly={{ from: 'top', duration: 300 }} on:click|stopPropagation={() => {}}>
     <header>
-        <h1>CONFIG</h1>
+        <h1>Config</h1>
         <button on:click={closeConfig}>close</button>
     </header>
     <p>
@@ -38,7 +38,7 @@
             </select>
         </label>
     </p>
-    {#if $configStore.speech}
+    {#if $configStore.speech && allVoices.length > 0}
         <p>
             <label>
                 Speech
