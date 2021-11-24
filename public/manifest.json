@@ -2,7 +2,7 @@
     "name": "Memorii",
     "short_name": "Memorii",
     "start_url": ".",
-    "display": "standalone",
+    "display": "fullscreen",
     "background_color": "black",
     "theme_color": "black",
     "description": "A match-2 card flipping game.",
