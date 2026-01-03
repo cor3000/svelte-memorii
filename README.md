@@ -33,7 +33,7 @@ npm run dev
 
 Navigate to [localhost:5000](http://localhost:5000). You should see your app running. Edit a component file in `src`, save it, and reload the page to see your changes.
 
-By default, the server will only respond to requests from localhost. To allow connections from other computers, edit the `sirv` commands in package.json to include the option `--host 0.0.0.0`.
+The dev server already uses `--host` in `npm run dev`. Adjust the script in `package.json` if you want different bind behavior.
 
 If you're using [Visual Studio Code](https://code.visualstudio.com/) we recommend installing the official extension [Svelte for VS Code](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode). If you are using other editors you may need to install a plugin in order to get syntax highlighting and intellisense.
 
@@ -45,7 +45,7 @@ To create an optimised version of the app:
 npm run build
 ```
 
-You can preview the newly built app locally with `npm run preview` (or `npm run start`).
+You can preview the newly built app locally with `npm run preview`. To run the Cloudflare dev server against `dist`, use `npm run start` after a build.
 
 ## Using TypeScript
 

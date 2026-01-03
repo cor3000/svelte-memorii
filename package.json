@@ -6,16 +6,13 @@
     "build": "vite build",
     "dev": "vite --host",
     "preview": "vite preview --host",
-    "start": "vite preview --host",
-    "start:csp": "bin/sirv-csp.js",
+    "start": "wrangler dev",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "deploy": "wrangler deploy"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^2.5.3",
     "@tsconfig/svelte": "^2.0.0",
-    "polka": "^0.5.2",
-    "sirv": "^2.0.4",
     "svelte": "^3.0.0",
     "svelte-check": "^2.0.0",
     "svelte-preprocess": "^4.0.0",
