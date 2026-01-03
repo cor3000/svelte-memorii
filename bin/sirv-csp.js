@@ -23,7 +23,7 @@ const securityHeaders = {
 };
 
 
-const assets = sirv('public', {
+const assets = sirv('dist', {
     setHeaders: res => {
         for (const key in securityHeaders) {
             res.setHeader(key, securityHeaders[key]);

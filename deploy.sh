@@ -7,6 +7,6 @@ export oldver=`grep -Eo 'CACHE_VERSION = [^;}]+' $sw_js | grep -Eo '[0-9]+'`
 export newver=`expr $oldver + 1`
 sed -i "s/CACHE_VERSION = $oldver;\$/CACHE_VERSION = $newver;/g" public/sw.js
 
-rm -rf public/build/
+rm -rf dist/
 npm run build
 npm run surge
