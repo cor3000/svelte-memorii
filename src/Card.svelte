@@ -16,9 +16,12 @@
     role="button"
     tabindex="0"
     aria-pressed={card.open}
-    on:mousedown={flip}
-    on:touchstart|preventDefault={flip}
-    on:keydown={(event) => {
+    onmousedown={flip}
+    ontouchstart={(event) => {
+        event.preventDefault();
+        flip(event);
+    }}
+    onkeydown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
             event.preventDefault();
             flip(event);

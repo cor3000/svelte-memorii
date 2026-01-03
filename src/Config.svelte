@@ -1,9 +1,14 @@
 <script lang="ts">
-    import { configStore } from "./state/configStore";
-    import { allSizes, allVoices } from "./state/configStore";
     import { createEventDispatcher } from "svelte";
-    import { speakText } from "./state/speech";
     import { fade, fly } from "./transitions";
+
+    export let config;
+    export let allSizes = [];
+    export let allVoices = [];
+    export let speakText;
+    export let setNumCards;
+    export let setSpeechEnabled;
+    export let setSpeechVoice;
 
     const dispatch = createEventDispatcher();
     function changeSize(event) {
@@ -17,6 +22,20 @@
         speakText("🐕 🍎 🍌");
     }
 
+    function handleSizeChange(event) {
+        const nextValue = Number(event.currentTarget.value);
+        setNumCards(nextValue);
+        changeSize(event);
+    }
+
+    function handleSpeechToggle(event) {
+        setSpeechEnabled(event.currentTarget.checked);
+    }
+
+    function handleVoiceChange(event) {
+        setSpeechVoice(event.currentTarget.value);
+    }
+
     function handleWindowKeydown(event) {
         if (event.key === "Escape") {
             event.preventDefault();
@@ -25,15 +44,15 @@
     }
 </script>
 
-<svelte:window on:keydown={handleWindowKeydown} />
+<svelte:window onkeydown={handleWindowKeydown} />
 
 <div
     transition:fade={{ from: 'top', duration: 300 }}
     role="button"
     tabindex="0"
     aria-label="Close configuration"
-    on:click={closeConfig}
-    on:keydown={(event) => {
+    onclick={closeConfig}
+    onkeydown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
             event.preventDefault();
             closeConfig(event);
@@ -48,15 +67,15 @@
 >
     <header>
         <h1>Config</h1>
-        <button on:click={closeConfig}>close</button>
+        <button onclick={closeConfig}>close</button>
     </header>
     <p>
         <label>
             Size
             <!-- svelte-ignore a11y-no-onchange -->
             <select
-                bind:value={$configStore.numCards}
-                on:change={changeSize}
+                value={config.numCards}
+                onchange={handleSizeChange}
             >
                 {#each allSizes as size}
                     <option value={size}>{size}</option>
@@ -64,21 +83,22 @@
             </select>
         </label>
     </p>
-    {#if $configStore.speech && allVoices.length > 0}
+    {#if config.speech && allVoices.length > 0}
         <p>
             <label>
                 Speech
                 <input
                     type="checkbox"
-                    bind:checked={$configStore.speech.enabled}
+                    checked={config.speech.enabled}
+                    onchange={handleSpeechToggle}
                 />
             </label>
         </p>
-        {#if $configStore.speech.enabled}
+        {#if config.speech.enabled}
             <p>
                 <label>
                     Voice
-                    <select bind:value={$configStore.speech.voiceURI}>
+                    <select value={config.speech.voiceURI} onchange={handleVoiceChange}>
                         {#each allVoices as voice}
                             <option value={voice.voiceURI}>
                                 {voice.name} ({voice.lang})
@@ -86,7 +106,7 @@
                         {/each}
                     </select>
                 </label>
-                <button on:click={testVoice}>Test</button>
+                <button onclick={testVoice}>Test</button>
             </p>
         {/if}
     {/if}

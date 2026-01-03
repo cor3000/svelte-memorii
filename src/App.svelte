@@ -1,7 +1,14 @@
 <script lang="ts">
-	// import { fade, scale } from "svelte/transition";
-	import { configStore, actions as configActions } from "./state/configStore";
-	import { gameStore, actions as gameActions } from "./state/gameStore";
+	import { onMount } from "svelte";
+	import {
+		config,
+		allSizes,
+		allVoices,
+		actions as configActions,
+		initVoices
+	} from "./state/configState.svelte";
+	import { game, actions as gameActions } from "./state/gameState.svelte";
+	import { speakText, updateSpeech } from "./state/speechState.svelte";
 	import { delay, lastValuesGreater } from "./utils";
 	import { settings } from "./settings";
 	import { fade, scale } from "./transitions";
@@ -9,12 +16,16 @@
 	import Card from "./Card.svelte";
 	import Config from "./Config.svelte";
 
-	let status: string = "initial";
-	let finishType: string;
-	const successRatioHistory: number[] = [];
-	let autoIncreaseSize: boolean = false;
+	let status = $state("initial");
+	let finishType = $state("");
+	let successRatioHistory = $state([]);
+	let autoIncreaseSize = $state(false);
+	let configOpen = $state(false);
 
-	gameActions.initCards($configStore.numCards);
+	onMount(() => initVoices());
+	$effect(() => updateSpeech(config));
+
+	gameActions.initCards(config.numCards);
 
 	async function startGame() {
 		if (status === "initial") {
@@ -22,7 +33,7 @@
 			return;
 		}
 		if (autoIncreaseSize) {
-			configActions.increaseSize();
+			increaseSize();
 			await updateSize();
 		} else {
 			await clearGame();
@@ -30,7 +41,7 @@
 		status = "playing";
 	}
 
-	async function flipCard(card) {
+	async function flipCard(card: any) {
 		if (status === "initial") {
 			startGame();
 		}
@@ -39,24 +50,26 @@
 	}
 
 	function checkGameStatus() {
-		if (!$gameStore.cards.find((c) => !c.dummy && !c.solved)) {
+		if (!game.cards.find((c) => !c.dummy && !c.solved)) {
 			finishGame("won");
 		}
 	}
 
 	function giveUpGame() {
-		$gameStore.cards.forEach((card, index) => {
-			card.open = true;
-		});
-		$gameStore.cards = $gameStore.cards;
+		game.cards = game.cards.map((card) =>
+			card.dummy ? card : { ...card, open: true }
+		);
 		setTimeout(() => finishGame("givenup"), 300);
 	}
 
-	function finishGame(type) {
+	function finishGame(type: string) {
 		status = "finished";
 		finishType = type;
 		if (finishType === "won") {
-			successRatioHistory.push(1 - $gameStore.stats.errorRatio);
+			successRatioHistory = [
+				...successRatioHistory,
+				1 - game.stats.errorRatio
+			];
 			autoIncreaseSize =
 				lastValuesGreater(successRatioHistory, 3, 0.85) ||
 				lastValuesGreater(successRatioHistory, 2, 0.925) ||
@@ -66,61 +79,65 @@
 
 	async function updateSize() {
 		autoIncreaseSize = false;
-		successRatioHistory.length = 0;
+		successRatioHistory = [];
 		await clearGame();
-		gameActions.initCards($configStore.numCards);
+		gameActions.initCards(config.numCards);
 	}
 
 	async function clearGame() {
 		if (status !== "initial") {
 			gameActions.clearGame();
-			await delay(settings.cardFlipDuration); // wait for card flip animation
-			gameActions.initCards($configStore.numCards);
+			await delay(settings.cardFlipDuration);
+			gameActions.initCards(config.numCards);
 			status = "initial";
 		}
 		return null;
 	}
 
-	let configOpen: boolean = false;
-	const toggleConfig = function () {
+	const toggleConfig = () => {
 		configOpen = !configOpen;
 	};
 
-	let successRatioLabel = "";
-	let ratingLabel = "";
-	let starRating = "";
-	$: {
-		const errorRatio = $gameStore.stats.errorRatio;
+	const rating = $derived.by(() => {
+		const errorRatio = game.stats.errorRatio;
 		if (isNaN(errorRatio)) {
-			successRatioLabel = "";
-			ratingLabel = "";
-		} else {
-			successRatioLabel =
-				Math.floor((1 - $gameStore.stats.errorRatio) * 100) + "%";
-			if (errorRatio === 0) {
-				ratingLabel =  "Perfect!";
-				starRating = "⭐⭐⭐";
-			} else if (errorRatio <= 0.08) {
-				ratingLabel = "Excellent!";
-				starRating = "⭐⭐";
-			} else if (errorRatio <= 0.15) {
-				ratingLabel = "Impressive!";
-				starRating = "⭐";
-			} else if (errorRatio <= 0.2) {
-				ratingLabel = "Amazing";
-				starRating = "";
-			} else if (errorRatio <= 0.3) {
-				ratingLabel = "Very Good";
-				starRating = "";
-			} else if (errorRatio <= 0.5) {
-				ratingLabel = "Good";
-				starRating = "";
-			} else {
-				ratingLabel = "Well Done";
-				starRating = "";
-			}
+			return {
+				successRatioLabel: "",
+				ratingLabel: "",
+				starRating: ""
+			};
 		}
-	}
+		const successRatioLabel = `${Math.floor((1 - errorRatio) * 100)}%`;
+		let ratingLabel = "";
+		let starRating = "";
+		if (errorRatio === 0) {
+			ratingLabel = "Perfect!";
+			starRating = "⭐⭐⭐";
+		} else if (errorRatio <= 0.08) {
+			ratingLabel = "Excellent!";
+			starRating = "⭐⭐";
+		} else if (errorRatio <= 0.15) {
+			ratingLabel = "Impressive!";
+			starRating = "⭐";
+		} else if (errorRatio <= 0.2) {
+			ratingLabel = "Amazing";
+			starRating = "";
+		} else if (errorRatio <= 0.3) {
+			ratingLabel = "Very Good";
+			starRating = "";
+		} else if (errorRatio <= 0.5) {
+			ratingLabel = "Good";
+			starRating = "";
+		} else {
+			ratingLabel = "Well Done";
+			starRating = "";
+		}
+		return {
+			successRatioLabel,
+			ratingLabel,
+			starRating
+		};
+	});
 </script>
 
 <main>
@@ -128,18 +145,18 @@
 		<h1>Memorii</h1>
 		{#if status === "playing"}
 			<span>
-				{$gameStore.stats.numErrors}/{$gameStore.stats.numTurns}
-				{successRatioLabel}
+				{game.stats.numErrors}/{game.stats.numTurns}
+				{rating.successRatioLabel}
 			</span>
-			<button on:click={giveUpGame}>give up</button>
+			<button onclick={giveUpGame}>give up</button>
 		{:else}
-			<button on:click={toggleConfig}>config</button>
+			<button onclick={toggleConfig}>config</button>
 		{/if}
 	</header>
 	<div
-		style="--columns: {$gameStore.numCols}; --rows: {$gameStore.numRows}; --flipDuration: {settings.cardFlipDuration}ms"
+		style="--columns: {game.numCols}; --rows: {game.numRows}; --flipDuration: {settings.cardFlipDuration}ms"
 	>
-		{#each $gameStore.cards as card}
+		{#each game.cards as card}
 			{#if card.id >= 0}
 				<Card {card} on:flip={() => flipCard(card)} />
 			{:else}
@@ -151,17 +168,17 @@
 				type="button"
 				class="finish-overlay"
 				transition:fade={{ duration: 300 }}
-				on:click={startGame}
+				onclick={startGame}
 			>
 				<div
 					in:scale={{ duration: 500 }}
 					out:scale={{ duration: 300, start: 2 }}
 				>
 					{#if finishType === "won"}
-						<p>{ratingLabel}</p>
+						<p>{rating.ratingLabel}</p>
 						<span class="finish">🎉</span>
-						<span class="stars">{starRating}</span>
-						<p>{successRatioLabel}</p>
+						<span class="stars">{rating.starRating}</span>
+						<p>{rating.successRatioLabel}</p>
 					{:else if finishType === "givenup"}
 						<span class="finish">💩</span>
 					{/if}
@@ -172,7 +189,17 @@
 	<footer></footer>
 </main>
 {#if configOpen}
-	<Config on:changeSize={updateSize} on:closeConfig={toggleConfig} />
+	<Config
+		{config}
+		{allSizes}
+		{allVoices}
+		{speakText}
+		setNumCards={configActions.setNumCards}
+		setSpeechEnabled={configActions.setSpeechEnabled}
+		setSpeechVoice={configActions.setSpeechVoice}
+		on:changeSize={updateSize}
+		on:closeConfig={toggleConfig}
+	/>
 {/if}
 
 <style>
