@@ -5,10 +5,12 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite --host",
+    "postbuild": "node scripts/bump-sw-version.js",
     "preview": "vite preview --host",
     "start": "wrangler dev",
     "check": "svelte-check --tsconfig ./tsconfig.json",
-    "deploy": "wrangler deploy"
+    "deploy": "npm run build && wrangler deploy",
+    "postdeploy": "node scripts/tag-deploy.js"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^2.5.3",

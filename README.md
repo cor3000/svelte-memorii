@@ -80,9 +80,8 @@ vercel deploy --name my-project
 
 ### With [Wrangler](https://developers.cloudflare.com/workers/wrangler/)
 
-Install dependencies, then deploy:
+Install dependencies, then deploy (this builds before publishing):
 
 ```bash
-npm run build
 npm run deploy
 ```

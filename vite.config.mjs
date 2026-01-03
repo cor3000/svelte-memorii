@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import sveltePreprocess from 'svelte-preprocess';
+import { resolve } from 'path';
 
 export default defineConfig({
 	plugins: [
@@ -13,8 +14,17 @@ export default defineConfig({
 		emptyOutDir: true,
 		cssCodeSplit: false,
 		rollupOptions: {
+			input: {
+				app: resolve(__dirname, 'index.html'),
+				sw: resolve(__dirname, 'src/sw.js')
+			},
 			output: {
-				entryFileNames: 'build/bundle.js',
+				entryFileNames: (chunkInfo) => {
+					if (chunkInfo.name === 'sw') {
+						return 'sw.js';
+					}
+					return 'build/bundle.js';
+				},
 				chunkFileNames: 'build/bundle-[name].js',
 				assetFileNames: (assetInfo) => {
 					if (assetInfo.name && assetInfo.name.endsWith('.css')) {
