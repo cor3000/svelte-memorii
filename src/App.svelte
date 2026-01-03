@@ -143,11 +143,16 @@
 			{#if card.id >= 0}
 				<Card {card} on:flip={() => flipCard(card)} />
 			{:else}
-				<div />
+				<div></div>
 			{/if}
 		{/each}
 		{#if status === "finished"}
-			<section transition:fade={{ duration: 300 }} on:click={startGame}>
+			<button
+				type="button"
+				class="finish-overlay"
+				transition:fade={{ duration: 300 }}
+				on:click={startGame}
+			>
 				<div
 					in:scale={{ duration: 500 }}
 					out:scale={{ duration: 300, start: 2 }}
@@ -161,10 +166,10 @@
 						<span class="finish">💩</span>
 					{/if}
 				</div>
-			</section>
+			</button>
 		{/if}
 	</div>
-	<footer />
+	<footer></footer>
 </main>
 {#if configOpen}
 	<Config on:changeSize={updateSize} on:closeConfig={toggleConfig} />
@@ -211,7 +216,14 @@
 		text-align: center;
 	}
 
-	section {
+	button.finish-overlay {
+		border: none;
+		padding: 0;
+		margin: 0;
+		font: inherit;
+		color: inherit;
+		cursor: pointer;
+		display: block;
 		position: absolute;
 		top: 0;
 		left: 0;
@@ -219,8 +231,9 @@
 		height: 100%;
 		background: radial-gradient(rgba(0, 0, 0, 0.6), transparent 80%);
 	}
-	section > div {
+	button.finish-overlay > div {
 		position: absolute;
+		inset: 0;
 		width: 100%;
 		height: 100%;
 		display: flex;
@@ -228,14 +241,14 @@
 		align-items: center;
 		justify-content: center;
 	}
-	section > div > span.finish {
+	button.finish-overlay > div > span.finish {
 		font-size: 35vmin;
 		text-shadow: 2vmin 2vmin 3vmin black;
 	}
-	section > div > span.stars {
+	button.finish-overlay > div > span.stars {
 		font-size: 16vmin;
 	}
-	section > div > p {
+	button.finish-overlay > div > p {
 		margin: 0;
 		padding: 1vmin;
 		font-size: 15vmin;

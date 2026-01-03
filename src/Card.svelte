@@ -13,8 +13,17 @@
     class="card"
     class:open={card.open}
     class:solved={card.solved}
+    role="button"
+    tabindex="0"
+    aria-pressed={card.open}
     on:mousedown={flip}
     on:touchstart|preventDefault={flip}
+    on:keydown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            flip(event);
+        }
+    }}
 >
     <div class="back">?</div>
     <div class="face" style="--card-color: {card.color}">

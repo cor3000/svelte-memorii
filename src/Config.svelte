@@ -16,10 +16,36 @@
     function testVoice() {
         speakText("🐕 🍎 🍌");
     }
+
+    function handleWindowKeydown(event) {
+        if (event.key === "Escape") {
+            event.preventDefault();
+            closeConfig(event);
+        }
+    }
 </script>
 
-<div transition:fade={{ from: 'top', duration: 300 }} on:click={closeConfig}/>
-<section transition:fly={{ from: 'top', duration: 300 }} on:click|stopPropagation={() => {}}>
+<svelte:window on:keydown={handleWindowKeydown} />
+
+<div
+    transition:fade={{ from: 'top', duration: 300 }}
+    role="button"
+    tabindex="0"
+    aria-label="Close configuration"
+    on:click={closeConfig}
+    on:keydown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            closeConfig(event);
+        }
+    }}
+></div>
+<section
+    transition:fly={{ from: 'top', duration: 300 }}
+    role="dialog"
+    aria-modal="true"
+    tabindex="-1"
+>
     <header>
         <h1>Config</h1>
         <button on:click={closeConfig}>close</button>
