@@ -78,17 +78,11 @@ cd public
 vercel deploy --name my-project
 ```
 
-### With [surge](https://surge.sh/)
+### With [Wrangler](https://developers.cloudflare.com/workers/wrangler/)
 
-Install `surge` if you haven't already:
-
-```bash
-npm install -g surge
-```
-
-Then, from within your project folder:
+Install dependencies, then deploy:
 
 ```bash
 npm run build
-surge public my-project.surge.sh
+npm run deploy
 ```

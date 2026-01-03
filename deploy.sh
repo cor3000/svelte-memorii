@@ -9,4 +9,4 @@ sed -i "s/CACHE_VERSION = $oldver;\$/CACHE_VERSION = $newver;/g" public/sw.js
 
 rm -rf dist/
 npm run build
-npm run surge
+npm run deploy
